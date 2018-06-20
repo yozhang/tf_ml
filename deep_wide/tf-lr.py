@@ -15,6 +15,7 @@ _CSV_COLUMNS_TEST = [
        'Parch', 'Ticket', 'Fare', 'Cabin', 'Embarked'
 ]
 
+
 def input_fn(data_file, num_epochs, shuffle, batch_size, is_train=True):
   """Generate an input function for the Estimator."""
   assert tf.gfile.Exists(data_file), (
@@ -23,7 +24,9 @@ def input_fn(data_file, num_epochs, shuffle, batch_size, is_train=True):
 
   def parse_csv(value):
     print('Parsing', data_file)
-    columns = tf.decode_csv(value, record_defaults= _CSV_COLUMN_DEFAULTS if is_train else _CSV_COLUMN_DEFAULTS_TEST )
+    columns = tf.decode_csv(value, 
+    record_defaults= _CSV_COLUMN_DEFAULTS if is_train else _CSV_COLUMN_DEFAULTS_TEST,
+    na_value='' )
     features = dict(zip(_CSV_COLUMNS if is_train else _CSV_COLUMNS_TEST, columns))
     features.pop('PassengerId')
     labels = tf.constant(1, dtype=tf.int32)
@@ -61,7 +64,7 @@ def build_model_columns():
     parch = tf.feature_column.categorical_column_with_identity('Parch', 11, default_value=10)
     ticket = tf.feature_column.categorical_column_with_hash_bucket('Ticket', hash_bucket_size=1000)
 #     fare = tf.feature_column.categorical_column_with_hash_bucket('Fare', hash_bucket_size=1000)
-    cabin = tf.feature_column.categorical_column_with_hash_bucket('Cabin', hash_bucket_size=200)
+    cabin = tf.feature_column.categorical_column_with_vocabulary_list('Cabin', ['Z', 'C', 'E', 'G', 'D', 'A', 'B', 'F', 'T'])
     embarded = tf.feature_column.categorical_column_with_vocabulary_list('Embarked', ['S', 'C', 'Q'])
     
     age_buckets = tf.feature_column.bucketized_column(
@@ -115,9 +118,9 @@ def main(unused_argv):
     model_type= ''
     model = build_estimator(model_dir, model_type)
     for n in range(40):
-        model.train(input_fn=lambda: input_fn('/Users/zhangyong/dataset/titannic/train.csv', 2, True, 40, True))
+        model.train(input_fn=lambda: input_fn('/Users/zhangyong/dataset/titannic/train_pro.csv', 2, True, 40, True))
     
-    results = model.evaluate(input_fn=lambda: input_fn('/Users/zhangyong/dataset/titannic/test.csv', 1, False, 40, False))
+    results = model.evaluate(input_fn=lambda: input_fn('/Users/zhangyong/dataset/titannic/test_pro.csv', 1, False, 40, False))
 
     print('Results at epoch', (n + 1) * 2)
     print('-' * 60)
