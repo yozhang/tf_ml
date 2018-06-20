@@ -15,6 +15,13 @@ _CSV_COLUMNS_TEST = [
        'Parch', 'Ticket', 'Fare', 'Cabin', 'Embarked'
 ]
 
+TICKET_TYPE = ['A/5' 'PC' 'STON/O2.' 'AAAA' 'PP' 'A/5.' 'C.A.' 'A./5.' 'SC/Paris'
+ 'S.C./A.4.' 'A/4.' 'CA' 'S.P.' 'S.O.C.' 'SO/C' 'W./C.' 'SOTON/OQ'
+ 'W.E.P.' 'STON/O' 'A4.' 'C' 'SOTON/O.Q.' 'SC/PARIS' 'S.O.P.' 'A.5.' 'Fa'
+ 'CA.' 'LINE' 'F.C.C.' 'W/C' 'SW/PP' 'SCO/W' 'P/PP' 'SC' 'SC/AH' 'A/S'
+ 'A/4' 'WE/P' 'S.W./PP' 'S.O./P.P.' 'F.C.' 'SOTON/O2' 'S.C./PARIS'
+ 'C.A./SOTON']
+
 
 def input_fn(data_file, num_epochs, shuffle, batch_size, is_train=True):
   """Generate an input function for the Estimator."""
@@ -62,7 +69,7 @@ def build_model_columns():
     sex = tf.feature_column.categorical_column_with_vocabulary_list('Sex', ['male', 'female'])
     sibsp = tf.feature_column.categorical_column_with_identity('SibSp', 11, default_value=10)
     parch = tf.feature_column.categorical_column_with_identity('Parch', 11, default_value=10)
-    ticket = tf.feature_column.categorical_column_with_hash_bucket('Ticket', hash_bucket_size=1000)
+    ticket = tf.feature_column.categorical_column_with_vocabulary_list('Ticket', TICKET_TYPE)
 #     fare = tf.feature_column.categorical_column_with_hash_bucket('Fare', hash_bucket_size=1000)
     cabin = tf.feature_column.categorical_column_with_vocabulary_list('Cabin', ['Z', 'C', 'E', 'G', 'D', 'A', 'B', 'F', 'T'])
     embarded = tf.feature_column.categorical_column_with_vocabulary_list('Embarked', ['S', 'C', 'Q'])
@@ -117,7 +124,7 @@ def main(unused_argv):
     model_dir = '/Users/zhangyong/Downloads/model_dir'
     model_type= ''
     model = build_estimator(model_dir, model_type)
-    for n in range(40):
+    for n in range(400):
         model.train(input_fn=lambda: input_fn('/Users/zhangyong/dataset/titannic/train_pro.csv', 2, True, 40, True))
     
     results = model.evaluate(input_fn=lambda: input_fn('/Users/zhangyong/dataset/titannic/test_pro.csv', 1, False, 40, False))
