@@ -92,6 +92,8 @@ def build_model_columns():
         tf.feature_column.indicator_column(sibsp),
         tf.feature_column.indicator_column(parch),
         tf.feature_column.indicator_column(cabin),
+        tf.feature_column.indicator_column(ticket),
+        tf.feature_column.indicator_column(embarded)
     ]
     return wide_columns, deep_columns
 
@@ -121,13 +123,14 @@ def build_estimator(model_dir, model_type):
             config=run_config)
     
 def main(unused_argv):   
-    model_dir = '/Users/zhangyong/Downloads/model_dir'
+    model_dir = '/home/zhangyong/Downloads/model_dir'
+    
     model_type= ''
     model = build_estimator(model_dir, model_type)
-    for n in range(400):
-        model.train(input_fn=lambda: input_fn('/Users/zhangyong/dataset/titannic/train_pro.csv', 2, True, 40, True))
+    for n in range(200):
+        model.train(input_fn=lambda: input_fn('./data/train_pro.csv', 2, True, 40, True))
     
-    results = model.evaluate(input_fn=lambda: input_fn('/Users/zhangyong/dataset/titannic/test_pro.csv', 1, False, 40, False))
+    results = model.evaluate(input_fn=lambda: input_fn('./data/test_pro.csv', 1, False, 40, False))
 
     print('Results at epoch', (n + 1) * 2)
     print('-' * 60)
