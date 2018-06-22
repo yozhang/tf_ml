@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import pandas as pd
+import argparse
 
 _CSV_COLUMNS = [
     'PassengerId', 'Survived', 'Pclass', 'Name', 'Sex', 'Age', 'SibSp',
@@ -123,7 +124,7 @@ def build_estimator(model_dir, model_type):
             config=run_config)
     
 def main(args):   
-    model_dir = '/Users/zhangyong/Downloads/model_dir'
+    model_dir = args[1] #'/Users/zhangyong/Downloads/model_dir'
     train_path = './data/train_pro.csv'
     test_path = './data/test_pro.csv'
     model_type= ''
@@ -148,6 +149,10 @@ def main(args):
         out = pd.DataFrame(tr, columns=['PassengerId'])
         out['Survived'] = vals
         out.to_csv('/Users/zhangyong/Downloads/tf_out.csv', index=False)
-        
-
-tf.app.run(main=main, argv=['predict'])
+       
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="tensorflow for titianic predict")
+    parser.add_argument('t',  help='input the task')
+    parser.add_argument('m', help='model directory')
+    args = parser.parse_args()
+    tf.app.run(main=main, argv=[args.t, args.m])
