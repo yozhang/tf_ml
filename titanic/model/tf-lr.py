@@ -122,21 +122,32 @@ def build_estimator(model_dir, model_type):
             dnn_hidden_units=hidden_units,
             config=run_config)
     
-def main(unused_argv):   
-    model_dir = '/home/zhangyong/Downloads/model_dir'
-    
+def main(args):   
+    model_dir = '/Users/zhangyong/Downloads/model_dir'
+    train_path = './data/train_pro.csv'
+    test_path = './data/test_pro.csv'
     model_type= ''
     model = build_estimator(model_dir, model_type)
-    for n in range(200):
-        model.train(input_fn=lambda: input_fn('./data/train_pro.csv', 2, True, 40, True))
-    
-    results = model.evaluate(input_fn=lambda: input_fn('./data/test_pro.csv', 1, False, 40, False))
+    if args[0] is 'train':    
+        for n in range(20):
+            model.train(input_fn=lambda: input_fn(train_path, 2, True, 40, True))
+        
+        results = model.evaluate(input_fn=lambda: input_fn(test_path, 1, False, 40, False))
 
-    print('Results at epoch', (n + 1) * 2)
-    print('-' * 60)
+        print('Results at epoch', (n + 1) * 2)
+        print('-' * 60)
 
-    for key in sorted(results):
-        print('%s: %s' % (key, results[key]))
+        for key in sorted(results):
+            print('%s: %s' % (key, results[key]))
+    elif args[0] is 'predict':
+        results = model.predict(input_fn=lambda: input_fn(test_path, 1, False, 40, False))
+        vals = []
+        for l in results:
+            vals.append(l['class_ids'][0])
+        tr = pd.read_csv(test_path)
+        out = pd.DataFrame(tr, columns=['PassengerId'])
+        out['Survived'] = vals
+        out.to_csv('/Users/zhangyong/Downloads/tf_out.csv', index=False)
         
 
-tf.app.run(main=main, argv=['tf-lr_titanic'])
+tf.app.run(main=main, argv=['predict'])
